@@ -1,0 +1,7 @@
+streamlit
+kerykeion
+pyswisseph
+timezonefinder
+pydantic
+geopy
+pytz
