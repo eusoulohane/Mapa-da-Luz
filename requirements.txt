@@ -5,3 +5,4 @@ timezonefinder
 pydantic
 geopy
 pytz
+fastapi
