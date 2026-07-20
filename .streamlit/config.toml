@@ -37,17 +37,17 @@ nome_completo = st.text_input(
     placeholder="Ex: Maria da Silva Santos"
 )
 
-col1, col2 = st.columns(2)
-with col1:
-    data_nascimento = st.date_input(
-        "Data de nascimento",
-        value=datetime.date(1990, 1, 1),
-        min_value=datetime.date(1920, 1, 1),
-        max_value=datetime.date.today(),
-        format="DD/MM/YYYY"
-    )
-with col2:
-    hora_nascimento = st.time_input("Hora de nascimento (exata)")
+# Data em 3 campos separados (evita bug do date_input no iOS Safari)
+st.write("**Data de nascimento**")
+col_dia, col_mes, col_ano = st.columns(3)
+with col_dia:
+    dia = st.number_input("Dia", min_value=1, max_value=31, value=1, step=1)
+with col_mes:
+    mes = st.number_input("Mês", min_value=1, max_value=12, value=1, step=1)
+with col_ano:
+    ano = st.number_input("Ano", min_value=1920, max_value=2024, value=1990, step=1)
+
+hora_nascimento = st.time_input("Hora de nascimento (exata)")
 
 cidade_selecionada = st.selectbox(
     "Cidade de nascimento",
@@ -64,8 +64,8 @@ gerar = st.button("✨ Gerar meu Mapa da Luz", type="primary", use_container_wid
 # PROCESSAMENTO E RESULTADO
 # ---------------------------------------------------------
 if gerar:
-    if not nome_completo or not cidade_selecionada or not data_nascimento:
-        st.error("Por favor, preencha todos os campos: nome completo, data de nascimento e cidade.")
+    if not nome_completo or not cidade_selecionada:
+        st.error("Por favor, preencha todos os campos: nome completo e cidade de nascimento.")
     else:
         with st.spinner("Consultando os astros e calculando sua energia... ✨"):
             try:
@@ -73,21 +73,19 @@ if gerar:
 
                 numerologia = gerar_bloco_numerologia(
                     nome_completo=nome_completo,
-                    dia=data_nascimento.day,
-                    mes=data_nascimento.month,
-                    ano=data_nascimento.year
+                    dia=int(dia), mes=int(mes), ano=int(ano)
                 )
 
                 astrologia = gerar_bloco_astrologia_com_coordenadas(
                     nome=nome_completo,
-                    ano=data_nascimento.year, mes=data_nascimento.month, dia=data_nascimento.day,
+                    ano=int(ano), mes=int(mes), dia=int(dia),
                     hora=hora_nascimento.hour, minuto=hora_nascimento.minute,
                     latitude=latitude, longitude=longitude,
                     fuso_horario="America/Sao_Paulo"
                 )
 
                 design_humano = gerar_bloco_design_humano(
-                    ano=data_nascimento.year, mes=data_nascimento.month, dia=data_nascimento.day,
+                    ano=int(ano), mes=int(mes), dia=int(dia),
                     hora=hora_nascimento.hour, minuto=hora_nascimento.minute,
                     utc_offset=-3
                 )
@@ -160,4 +158,4 @@ if gerar:
 
             except Exception as e:
                 st.error(f"Algo não saiu como esperado. Detalhe técnico: {e}")
-                st.info("Se o erro persistir, confira se a data e hora foram preenchidas corretamente.")
+                st.info("Se o erro persistir, confira se os dados foram preenchidos corretamente.")
