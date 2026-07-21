@@ -37,7 +37,7 @@ nome_completo = st.text_input(
     placeholder="Ex: Maria da Silva Santos"
 )
 
-# Data em 3 campos separados (evita bug do date_input no iOS Safari)
+# Data em 3 campos numéricos separados (evita bug do date_input no iOS Safari)
 st.write("**Data de nascimento**")
 col_dia, col_mes, col_ano = st.columns(3)
 with col_dia:
@@ -47,7 +47,13 @@ with col_mes:
 with col_ano:
     ano = st.number_input("Ano", min_value=1920, max_value=2024, value=1990, step=1)
 
-hora_nascimento = st.time_input("Hora de nascimento (exata)")
+# Hora em 2 campos numéricos separados (mesma abordagem)
+st.write("**Hora de nascimento (exata)**")
+col_hora, col_min = st.columns(2)
+with col_hora:
+    hora = st.number_input("Hora", min_value=0, max_value=23, value=12, step=1)
+with col_min:
+    minuto = st.number_input("Minuto", min_value=0, max_value=59, value=0, step=1)
 
 cidade_selecionada = st.selectbox(
     "Cidade de nascimento",
@@ -71,25 +77,35 @@ if gerar:
             try:
                 latitude, longitude = CIDADES_BRASIL[cidade_selecionada]
 
+                dia = int(dia)
+                mes = int(mes)
+                ano = int(ano)
+                hora = int(hora)
+                minuto = int(minuto)
+
+                # Numerologia
                 numerologia = gerar_bloco_numerologia(
                     nome_completo=nome_completo,
-                    dia=int(dia), mes=int(mes), ano=int(ano)
+                    dia=dia, mes=mes, ano=ano
                 )
 
+                # Astrologia (usa hora local + fuso)
                 astrologia = gerar_bloco_astrologia_com_coordenadas(
                     nome=nome_completo,
-                    ano=int(ano), mes=int(mes), dia=int(dia),
-                    hora=hora_nascimento.hour, minuto=hora_nascimento.minute,
+                    ano=ano, mes=mes, dia=dia,
+                    hora=hora, minuto=minuto,
                     latitude=latitude, longitude=longitude,
                     fuso_horario="America/Sao_Paulo"
                 )
 
+                # Design Humano (a biblioteca espera hora LOCAL + utc_offset)
                 design_humano = gerar_bloco_design_humano(
-                    ano=int(ano), mes=int(mes), dia=int(dia),
-                    hora=hora_nascimento.hour, minuto=hora_nascimento.minute,
+                    ano=ano, mes=mes, dia=dia,
+                    hora=hora, minuto=minuto,
                     utc_offset=-3
                 )
 
+                # Arquétipo-síntese
                 arquetipo = gerar_arquetipo_sintese(
                     sol_signo=astrologia["sol_signo"],
                     tipo_design_humano=design_humano["tipo_original"]
